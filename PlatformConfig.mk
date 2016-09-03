@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# Include path
+TARGET_SPECIFIC_HEADER_PATH := $(LOCAL_PATH)/include
 
 TARGET_BOARD_PLATFORM := msm8994
 
@@ -31,6 +33,8 @@ TARGET_USES_64_BIT_BINDER := true
 TARGET_USES_64_BIT_BCMDHD := true
 
 ENABLE_CPUSETS := true
+
+TARGET_KERNEL_SOURCE := kernel/sony
 
 BOARD_KERNEL_BASE        := 0x00000000
 BOARD_KERNEL_PAGESIZE    := 4096
@@ -76,10 +80,13 @@ BOARD_CUSTOM_BT_CONFIG := device/sony/kitakami/bluetooth/vnd_generic.txt
 TARGET_PER_MGR_ENABLED := true
 
 # NFC
-NFC_NXP_CHIP_TYPE := PN547C2
+BOARD_NFC_CHIPSET := pn547
 
 # Props for hotplugging
 TARGET_SYSTEM_PROP += device/sony/kitakami/system.prop
+
+# Camera
+USE_DEVICE_SPECIFIC_CAMERA := true
 
 # SELinux
 BOARD_SEPOLICY_DIRS += device/sony/kitakami/sepolicy

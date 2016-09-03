@@ -1,7 +1,6 @@
-Copyright (C) Sony Mobile Communications 2015
-=============================================
+# Device tree for the Sony Kitakami Platform 
 
-This is the Android device configuration for kitakami platform.
+This is the Android device configuration for the kitakami platform.
 
 Kitakami devices:
 
@@ -11,6 +10,3 @@ Kitakami devices:
     Xperia Z5..................Sumire
     Xperia Z5 Compact..........Suzuran
     Xperia Z5 Premium..........Satsuki
-
-Build instructions
-http://developer.sonymobile.com/knowledge-base/open-source/open-devices/aosp-build-instructions/
