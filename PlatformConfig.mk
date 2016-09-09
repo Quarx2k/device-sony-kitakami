@@ -75,6 +75,7 @@ BOARD_BLUETOOTH_BDROID_BUILDCFG_INCLUDE_DIR := device/sony/kitakami/bluetooth
 BOARD_HAVE_BLUETOOTH := true
 BOARD_HAVE_BLUETOOTH_BCM := true
 BOARD_CUSTOM_BT_CONFIG := device/sony/kitakami/bluetooth/vnd_generic.txt
+BLUEDROID_ENABLE_V4L2 := true
 
 # RIL
 TARGET_PER_MGR_ENABLED := true
