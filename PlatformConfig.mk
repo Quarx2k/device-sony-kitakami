@@ -81,7 +81,12 @@ BLUEDROID_ENABLE_V4L2 := true
 TARGET_PER_MGR_ENABLED := true
 
 # NFC
+NFC_NXP_CHIP_TYPE := PN547C2
 BOARD_NFC_CHIPSET := pn547
+
+# FM definitions for Broadcom solution
+BOARD_HAVE_ALTERNATE_FM := true
+BOARD_HAVE_BCM_FM := true
 
 # Props for hotplugging
 TARGET_SYSTEM_PROP += device/sony/kitakami/system.prop
