@@ -17,11 +17,10 @@
 #ifndef _BDROID_BUILDCFG_H
 #define _BDROID_BUILDCFG_H
 
-#if !defined(OS_GENERIC)
 #include <cutils/properties.h>
 #include <string.h>
 
-static inline const char* getBTDefaultName()
+inline const char* getBTDefaultName()
 {
     char device[PROPERTY_VALUE_MAX];
     property_get("ro.boot.hardware", device, "");
@@ -44,7 +43,6 @@ static inline const char* getBTDefaultName()
 }
 
 #define BTM_DEF_LOCAL_NAME getBTDefaultName()
-#endif // OS_GENERIC
 
 /* #define BTA_AV_CO_CP_SCMS_T   TRUE */
 #define SDP_AVRCP_1_5   FALSE

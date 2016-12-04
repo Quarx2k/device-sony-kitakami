@@ -21,10 +21,15 @@ on init
 
 on fs
     mount_all ./fstab.kitakami
+    swapon_all ./fstab.kitakami
+
     restorecon_recursive /persist
     write /sys/kernel/boot_adsp/boot 1
 
 on boot
+    # Bluetooth
+    chown system system /sys/devices/soc.0/bcmdhd_wlan.90/macaddr
+
     # Cover mode
     chown system system /sys/devices/virtual/input/clearpad/cover_mode_enabled
     chown system system /sys/devices/virtual/input/clearpad/cover_win_bottom
@@ -63,21 +68,36 @@ on boot
     chown system system /sys/bus/spi/devices/spi0.1/irq
     chmod 0660 /sys/bus/spi/devices/spi0.1/irq
 
+    # add a cpuset for the camera daemon
+    # we want all the little cores for camera
+    mkdir /dev/cpuset/camera-daemon
+    write /dev/cpuset/camera-daemon/cpus 0
+    write /dev/cpuset/camera-daemon/mems 0
+    chown system system /dev/cpuset/camera-daemon
+    chown system system /dev/cpuset/camera-daemon/tasks
+    chmod 0664 /dev/cpuset/camera-daemon/tasks
+
     # Update foreground cpuset now that processors are up
-    write /dev/cpuset/foreground/cpus 0-7
+    # reserve CPU 3 for the top app and camera daemon
+    write /dev/cpuset/foreground/cpus 0-2,4-7
     write /dev/cpuset/foreground/boost/cpus 4-7
     write /dev/cpuset/background/cpus 0
-    write /dev/cpuset/system-background/cpus 0-3
+    write /dev/cpuset/system-background/cpus 0-2
+    write /dev/cpuset/top-app/cpus 0-7
+    write /dev/cpuset/camera-daemon/cpus 0-3
 
     # Symlink for compability
     symlink /dev/pn54x /dev/pn544
     symlink /dev/pn54x /dev/pn547
 
 # OSS WLAN and BT MAC setup
-service macaddrsetup /system/bin/macaddrsetup
-    user root
+service macaddrsetup /system/bin/macaddrsetup /sys/devices/soc.0/bcmdhd_wlan.90/macaddr
+    class core
+    user system
+    group system bluetooth
     disabled
     oneshot
+    writepid /dev/cpuset/system-background/tasks
 
 service wpa_supplicant /system/bin/wpa_supplicant \
     -iwlan0 -Dnl80211 -c/data/misc/wifi/wpa_supplicant.conf \
@@ -112,6 +132,7 @@ service per_mgr /system/vendor/bin/pm-service
     class core
     user system
     group system net_raw
+    writepid /dev/cpuset/system-background/tasks
 
 # QCOM prop
 service per_proxy /system/vendor/bin/pm-proxy
@@ -119,6 +140,18 @@ service per_proxy /system/vendor/bin/pm-proxy
     user system
     group system net_raw
     disabled
+    writepid /dev/cpuset/system-background/tasks
+
+# Sensor
+service pad_controller /system/vendor/bin/pad_controller
+    class main
+    user system
+    group system radio
+    disabled
+    writepid /dev/cpuset/system-background/tasks
+
+on property:ro.hardware=karin
+    enable pad_controller
 
 # Sensor
 service pad_controller /system/vendor/bin/pad_controller
@@ -135,6 +168,7 @@ service fingerprintd /system/bin/fingerprintd
     class late_start
     user system
     group input
+    writepid /dev/cpuset/system-background/tasks
 
 service msm_irqbalance /system/vendor/bin/msm_irqbalance -f /system/etc/msm_irqbalance.conf
     socket msm_irqbalance seqpacket 660 root system
@@ -148,13 +182,12 @@ service uim /system/bin/brcm-uim-sysfs
     class late_start
     user root
     group bluetooth net_bt_admin net_bt
+    seclabel u:r:uim:s0
+    writepid /dev/cpuset/system-background/tasks
 
 on property:vold.post_fs_data_done=1
     # Generate Bluetooth MAC address file only when /data is ready
     start macaddrsetup
-    # Wait for the file to be created by macaddrsetup
-    wait /data/etc/bluetooth_bdaddr
-    chown bluetooth bluetooth /data/etc/bluetooth_bdaddr
 
 on property:bluetooth.isEnabled=true
     write /sys/class/bluetooth/hci0/idle_timeout 7000
