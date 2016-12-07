@@ -159,6 +159,7 @@ service pad_controller /system/vendor/bin/pad_controller
     user system
     group system radio
     disabled
+    writepid /dev/cpuset/system-background/tasks
 
 on property:ro.hardware=karin
     enable pad_controller
